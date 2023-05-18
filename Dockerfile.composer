@@ -1,0 +1,9 @@
+FROM alpine:latest
+
+RUN apk --no-cache add composer
+
+COPY ./app /app
+
+WORKDIR /app
+
+CMD ["composer", "install"]

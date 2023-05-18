@@ -1,0 +1,18 @@
+FROM alpine:latest
+
+RUN addgroup -S -g 1000 postgres
+RUN adduser -S -u 1000 -G postgres postgres
+RUN apk --no-cache add postgresql
+
+ENV PGDATA=/var/lib/postgresql/data
+
+RUN mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 700 "$PGDATA"
+
+COPY postgresql.conf "$PGDATA/postgresql.conf"
+RUN chown postgres:postgres "$PGDATA/postgresql.conf" && chmod 600 "$PGDATA/postgresql.conf"
+
+EXPOSE 5432
+
+USER postgres
+
+CMD ["postgres"]

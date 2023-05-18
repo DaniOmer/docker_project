@@ -1,0 +1,22 @@
+FROM alpine:latest
+
+# Install dependencies
+RUN apk update
+RUN apk --no-cache add wget php php-session php-pdo_pgsql
+
+# Set the version and download URL of Adminer
+ENV ADMINER_VERSION=4.7.9
+ENV ADMINER_DOWNLOAD_URL="https://github.com/vrana/adminer/releases/download/v${ADMINER_VERSION}/adminer-${ADMINER_VERSION}.php"
+
+# Download Adminer
+RUN mkdir /adminer && \
+    wget -O /adminer/adminer.php ${ADMINER_DOWNLOAD_URL}
+
+# Set the working directory
+WORKDIR /adminer
+
+# Expose the port on which Adminer runs
+EXPOSE 8082 
+
+# Run Adminer
+CMD ["php", "-S", "0.0.0.0:8082", "adminer.php"]
