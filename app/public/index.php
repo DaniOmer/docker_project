@@ -1,11 +1,11 @@
 <?php
 
 // Configuration de la connexion à la base de données
-$host = 'localhost';
+$host = 'docker_project-postgres-1';
 $port = '5432';
-$database = 'nom_de_la_base_de_donnees';
-$user = 'nom_utilisateur';
-$password = 'mot_de_passe';
+$database = 'test';
+$user = 'postgres';
+$password = 'postgres';
 
 try {
     // Connexion à la base de données
@@ -13,7 +13,7 @@ try {
     $pdo = new PDO($dsn);
 
     // Exécution d'une requête
-    $query = "SELECT * FROM table_name";
+    $query = "SELECT * FROM first_test";
     $stmt = $pdo->query($query);
 
     // Récupération des résultats

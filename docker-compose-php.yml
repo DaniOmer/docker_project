@@ -1,30 +1,31 @@
 version: '3.8'
 
+
 services:
-    php:
+    app:
         build:
+            args:
+                user: root
+                uid: 0
             context: .
             dockerfile: Dockerfile.php
+        restart: unless-stopped
+        working_dir: /var/www/
         volumes:
-            - ./app:/var/www/html
-        depends_on:
-            - db
-        networks: 
-            - php_postgres
-
-    db:
-        extends:
-            file: docker-compose-postgres.yml
-            service: db
-
+            - ./app:/var/www
+        networks:
+            - challenge
+    
     nginx:
-        image: nginx:latest
+        image: nginx:alpine
+        restart: unless-stopped
         ports:
             - 80:80
         volumes:
-            - ./app:/var/www/html
-        depends_on:
-            - php
+            - ./app:/var/www
+            - ./conf:/etc/nginx/conf.d/
+        networks:
+            - challenge    
       
     composer:
         build:
@@ -34,9 +35,33 @@ services:
             - ./app:/app
         working_dir: /app
         depends_on:
-            - php
+            - app
+
+    postgres:
+        image: postgres
+        restart: always
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=test
+            - "POSTGRES_HOST_AUTH_METHOD=trust"
+        ports:
+            - "5430:5432" 
+        volumes:
+            - ./db_data:/var/lib/postgresql/data
+        networks: 
+            - challenge
+        
+    adminer:
+        build: 
+            context: .
+            dockerfile: Dockerfile.adminer
+        ports: 
+            - 8082:8082
+        volumes: 
+            - ./adminer:/var/www/html
             
 
 networks:
-    php_postgres:
-        external: true
+    challenge:
+        driver: bridge

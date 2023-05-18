@@ -1,11 +1,32 @@
-FROM alpine:edge
+FROM php:8.1.9-fpm
 
-# Installation of Nginx and PHP
-RUN apk --no-cache add nginx php-fpm
+# Arguments defined in docker-compose.yml
+ARG user
+ARG uid
 
-# Copy application files
-COPY app /var/www/html
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpq-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libwebp-dev \
+    zip \
+    unzip
 
-# Expose port 80 for Nginx
-EXPOSE 80
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Install PHP extensions
+RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd
+
+RUN chown -R $user:$user /var/www
+
+# Set working directory
+WORKDIR /var/www
+
+USER $user

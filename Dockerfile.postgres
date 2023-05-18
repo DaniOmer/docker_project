@@ -1,18 +1,19 @@
 FROM alpine:latest
 
-RUN addgroup -S -g 1000 postgres
-RUN adduser -S -u 1000 -G postgres postgres
-RUN apk --no-cache add postgresql
+
+RUN apk add sudo
+RUN apk update && apk --no-cache add postgresql
+RUN echo 'postgres ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER postgres
 
 ENV PGDATA=/var/lib/postgresql/data
 
-RUN mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 700 "$PGDATA"
+RUN sudo mkdir -p "$PGDATA"
+
 
 COPY postgresql.conf "$PGDATA/postgresql.conf"
-RUN chown postgres:postgres "$PGDATA/postgresql.conf" && chmod 600 "$PGDATA/postgresql.conf"
-
+# RUN chown postgres:postgres "$PGDATA/postgresql.conf" && chmod 600 "$PGDATA/postgresql.conf"
+RUN sudo chown -R postgres:postgres /var/lib/postgresql/data
 EXPOSE 5432
-
-USER postgres
 
 CMD ["postgres"]
